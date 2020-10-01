@@ -56,15 +56,15 @@ class Auth {
     return this;
   }
 
-  fetchToken(...args) {
-    const token = this.options.fetchToken?.call(this, ...args);
+  async fetchToken(...args) {
+    const token = this.options.fetchToken && await this.options.fetchToken.call(this, ...args);
     this.setToken(token);
     return token;
   }
 
-  fetchUser(...args) {
+  async fetchUser(...args) {
     const token = this.getToken();
-    return this.options.fetchUser?.call(this, token, ...args);
+    return this.options.fetchUser && await this.options.fetchUser.call(this, token, ...args);
   }
 
   async login(...args) {

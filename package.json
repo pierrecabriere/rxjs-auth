@@ -1,11 +1,11 @@
 {
   "name": "rxjs-auth",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Simple auth-manager based on rxjs",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/YOUR_GITHUB_USER_NAME/rxjs-auth",
+  "repository": "https://github.com/pierrecabriere/rxjs-auth",
   "license": "MIT",
   "keywords": [],
   "scripts": {

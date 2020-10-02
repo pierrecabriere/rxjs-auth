@@ -24,11 +24,30 @@ export { authmanager };
 
 ### Enjoy !
 
+First, link token to your requests with `getToken()`
+
+```js
+import { authmanager } from "./path/to/manager";
+
+axios.interceptors.request.use(function(config) {
+  const token = authmanager.getToken();
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+```
+
+Then, login with `login()`
+
 ```js
 import { authmanager } from "./path/to/manager";
 
 console.log(authmanager.logged); // false
 console.log(authmanager.user); // null
+console.log(authmanager.loading); // false, true while authmanager is logging
 await authmanager.login(credentials);
 console.log(authmanager.logged); // true
 console.log(authmanager.user); // ...
@@ -51,4 +70,13 @@ import { authmanager } from "./path/to/manager";
 
 // Fetch the user from the previously stored token
 authmanager.sync();
+```
+
+### Logout
+
+```js
+import { authmanager } from "./path/to/manager";
+
+// Fetch the user from the previously stored token
+authmanager.logout();
 ```

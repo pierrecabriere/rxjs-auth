@@ -103,7 +103,7 @@ class Auth {
   logout() {
     this.deleteToken();
     this.loggedSubject.next(false);
-    this.userSubject.next(false);
+    this.userSubject.next(null);
     return this;
   }
 }

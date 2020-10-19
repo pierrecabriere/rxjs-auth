@@ -2,7 +2,6 @@
 
 Simple auth-manager based on rxjs
 
-
 --
 
 ## Usage

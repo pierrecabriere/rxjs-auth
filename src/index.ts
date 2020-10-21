@@ -20,6 +20,17 @@ class Auth {
   constructor(name: string, options: IAuthOptions) {
     this.name = name;
     this.options = Object.assign({}, defaultOptions, options);
+
+    // bind this
+    this.getTokenName = this.getTokenName.bind(this);
+    this.getToken = this.getToken.bind(this);
+    this.setToken = this.setToken.bind(this);
+    this.deleteToken = this.deleteToken.bind(this);
+    this.fetchToken = this.fetchToken.bind(this);
+    this.fetchUser = this.fetchUser.bind(this);
+    this.login = this.login.bind(this);
+    this.sync = this.sync.bind(this);
+    this.logout = this.logout.bind(this);
   }
 
   static create(name: string, options: IAuthOptions) {

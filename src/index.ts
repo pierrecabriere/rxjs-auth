@@ -1,4 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
+import Cookies from 'universal-cookie';
 
 interface IAuthOptions {
   fetchToken?,
@@ -13,6 +14,7 @@ const defaultOptions: IAuthOptions = {
 class Auth {
   name;
   options;
+  cookies;
   loadingSubject = new BehaviorSubject(false);
   loggedSubject = new BehaviorSubject(false);
   userSubject = new BehaviorSubject(null);
@@ -50,20 +52,23 @@ class Auth {
   }
 
   getTokenName() {
-    return this.name ? `rxjs-auth_${ this.name }` : "rxjs-auth";
+    return this.name ? `rxjs-auth-${ this.name }` : "rxjs-auth";
   }
 
-  getToken() {
-    return localStorage.getItem(this.getTokenName());
+  getToken(cookieStr?: string) {
+    const tokenName = this.getTokenName();
+    return new Cookies(cookieStr).get(tokenName);
   }
 
   setToken(token) {
-    localStorage.setItem(this.getTokenName(), token);
+    const tokenName = this.getTokenName();
+    new Cookies().set(tokenName, token);
     return this;
   }
 
   deleteToken() {
-    localStorage.removeItem(this.getTokenName());
+    const tokenName = this.getTokenName();
+    this.cookies.remove(tokenName);
     return this;
   }
 

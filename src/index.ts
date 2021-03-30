@@ -68,7 +68,7 @@ class Auth {
 
   deleteToken() {
     const tokenName = this.getTokenName();
-    this.cookies.remove(tokenName);
+    new Cookies().remove(tokenName);
     return this;
   }
 

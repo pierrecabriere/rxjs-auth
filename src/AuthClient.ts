@@ -1,12 +1,12 @@
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from "rxjs";
 
-import AuthTokenStorage from './AuthTokenStorage';
+import AuthTokenStorage from "./AuthTokenStorage";
 
 interface AuthClientOptions {
-  fetchToken?,
-  fetchUser?,
-  isUserLogged?,
-  tokenStorage?
+  fetchToken?;
+  fetchUser?;
+  isUserLogged?;
+  tokenStorage?;
 }
 
 interface AuthClientImpl {
@@ -18,20 +18,24 @@ interface AuthClientImpl {
 }
 
 const defaultOptions: AuthClientOptions = {
-  isUserLogged: data => !!data && Object.keys(data).length > 0,
-  tokenStorage: AuthTokenStorage.default
-}
+  isUserLogged: (data) => !!data && Object.keys(data).length > 0,
+  tokenStorage: AuthTokenStorage.default,
+};
 
 class AuthClient implements AuthClientImpl {
-  name;
-  options;
-  loadingSubject = new BehaviorSubject(false);
-  loggedSubject = new BehaviorSubject(false);
-  userSubject = new BehaviorSubject(null);
+  name: string;
+  options: AuthClientOptions;
+  loadingSubject: BehaviorSubject<boolean>;
+  loggedSubject: BehaviorSubject<boolean>;
+  userSubject: BehaviorSubject<any>;
 
   constructor(name: string, options: AuthClientOptions) {
     this.name = name;
     this.options = Object.assign({}, defaultOptions, options);
+
+    this.loadingSubject = new BehaviorSubject(false);
+    this.loggedSubject = new BehaviorSubject(false);
+    this.userSubject = new BehaviorSubject(null);
 
     if (!(this.options.tokenStorage instanceof AuthTokenStorage)) {
       throw new Error("Please provide a valid tokenStorage instance");
@@ -66,7 +70,7 @@ class AuthClient implements AuthClientImpl {
   }
 
   getTokenName() {
-    return this.name ? `rxjs-auth-${ this.name }` : "rxjs-auth";
+    return this.name ? `rxjs-auth-${this.name}` : "rxjs-auth";
   }
 
   getToken(...args) {
@@ -87,14 +91,14 @@ class AuthClient implements AuthClientImpl {
   }
 
   async fetchToken(...args) {
-    const token = this.options.fetchToken && await this.options.fetchToken.call(this, ...args);
+    const token = this.options.fetchToken && (await this.options.fetchToken.call(this, ...args));
     this.setToken(token);
     return token;
   }
 
   async fetchUser(...args) {
     const token = this.getToken();
-    return this.options.fetchUser && await this.options.fetchUser.call(this, token, ...args);
+    return this.options.fetchUser && (await this.options.fetchUser.call(this, token, ...args));
   }
 
   async login(...args) {

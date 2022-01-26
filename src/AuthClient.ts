@@ -118,7 +118,6 @@ class AuthClient implements AuthClientImpl {
   }
 
   setAccessToken(token, ...args) {
-    console.log("setAccessToken", token);
     if (!token) {
       return this.deleteAccessToken();
     }
@@ -127,7 +126,6 @@ class AuthClient implements AuthClientImpl {
   }
 
   setRefreshToken(token, ...args) {
-    console.log("setRefreshToken", token);
     if (!token) {
       return this.deleteRefreshToken();
     }

@@ -1,6 +1,6 @@
 {
   "name": "rxjs-auth",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Simple auth-manager based on rxjs",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",

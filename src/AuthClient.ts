@@ -3,10 +3,13 @@ import { BehaviorSubject } from "rxjs";
 import AuthTokenStorage from "./AuthTokenStorage";
 
 interface AuthClientOptions {
-  fetchToken?;
   fetchUser?;
   isUserLogged?;
   tokenStorage?;
+  login?;
+  getAccessToken?;
+  getRefreshToken?;
+  refreshToken?;
 }
 
 interface AuthClientImpl {
@@ -20,6 +23,8 @@ interface AuthClientImpl {
 const defaultOptions: AuthClientOptions = {
   isUserLogged: (data) => !!data && Object.keys(data).length > 0,
   tokenStorage: AuthTokenStorage.default,
+  getAccessToken: (data) => data,
+  getRefreshToken: () => null,
 };
 
 class AuthClient implements AuthClientImpl {
@@ -46,7 +51,12 @@ class AuthClient implements AuthClientImpl {
     this.getToken = this.getToken.bind(this);
     this.setToken = this.setToken.bind(this);
     this.deleteToken = this.deleteToken.bind(this);
-    this.fetchToken = this.fetchToken.bind(this);
+    this.deleteAccessToken = this.deleteAccessToken.bind(this);
+    this.deleteRefreshToken = this.deleteRefreshToken.bind(this);
+    this.getAccessToken = this.getAccessToken.bind(this);
+    this.getRefreshToken = this.getRefreshToken.bind(this);
+    this.setAccessToken = this.setAccessToken.bind(this);
+    this.setRefreshToken = this.setRefreshToken.bind(this);
     this.fetchUser = this.fetchUser.bind(this);
     this.login = this.login.bind(this);
     this.sync = this.sync.bind(this);
@@ -69,31 +79,60 @@ class AuthClient implements AuthClientImpl {
     return this.userSubject.getValue();
   }
 
-  getTokenName() {
-    return this.name ? `rxjs-auth-${this.name}` : "rxjs-auth";
+  getTokenName(suffix = "access-token") {
+    const name = this.name ? `rxjs-auth-${this.name}` : "rxjs-auth";
+    return name + `-${suffix}`;
   }
 
-  getToken(...args) {
-    const tokenName = this.getTokenName();
+  getToken(suffix?, ...args) {
+    const tokenName = this.getTokenName(suffix);
     return this.options.tokenStorage.get(tokenName, ...args);
   }
 
-  setToken(token, ...args) {
-    const tokenName = this.getTokenName();
+  setToken(token, suffix?, ...args) {
+    const tokenName = this.getTokenName(suffix);
     this.options.tokenStorage.set(token, tokenName, ...args);
     return this;
   }
 
-  deleteToken(...args) {
-    const tokenName = this.getTokenName();
+  deleteToken(suffix?, ...args) {
+    const tokenName = this.getTokenName(suffix);
     this.options.tokenStorage.del(tokenName, ...args);
     return this;
   }
 
-  async fetchToken(...args) {
-    const token = this.options.fetchToken && (await this.options.fetchToken.call(this, ...args));
-    this.setToken(token);
-    return token;
+  deleteAccessToken(...args) {
+    return this.deleteToken(undefined, ...args);
+  }
+
+  deleteRefreshToken(...args) {
+    return this.deleteToken("refresh-token", ...args);
+  }
+
+  getAccessToken(...args) {
+    return this.getToken(undefined, ...args);
+  }
+
+  getRefreshToken(...args) {
+    return this.getToken("refresh-token", ...args);
+  }
+
+  setAccessToken(token, ...args) {
+    console.log("setAccessToken", token);
+    if (!token) {
+      return this.deleteAccessToken();
+    }
+
+    return this.setToken(token, undefined, ...args);
+  }
+
+  setRefreshToken(token, ...args) {
+    console.log("setRefreshToken", token);
+    if (!token) {
+      return this.deleteRefreshToken();
+    }
+
+    return this.setToken(token, "refresh-token", ...args);
   }
 
   async fetchUser(...args) {
@@ -104,7 +143,32 @@ class AuthClient implements AuthClientImpl {
   async login(...args) {
     this.loadingSubject.next(true);
     try {
-      await this.fetchToken(...args);
+      const loginData = await this.options.login?.call(this, ...args);
+      const accessToken = this.options.getAccessToken(loginData);
+      const refreshToken = this.options.getRefreshToken(loginData);
+      this.setAccessToken(accessToken);
+      this.setRefreshToken(refreshToken);
+      const user = await this.fetchUser();
+      const isLogged = await this.options.isUserLogged(user);
+      if (isLogged) {
+        this.userSubject.next(user);
+        this.loggedSubject.next(true);
+      }
+      this.loadingSubject.next(false);
+    } catch (e) {
+      this.loadingSubject.next(false);
+      throw e;
+    }
+  }
+
+  async refreshToken(...args) {
+    this.loadingSubject.next(true);
+    try {
+      const refreshData = await this.options.refreshToken?.call(this, ...args);
+      const accessToken = this.options.getAccessToken(refreshData);
+      const refreshToken = this.options.getRefreshToken(refreshData);
+      this.setAccessToken(accessToken);
+      this.setRefreshToken(refreshToken);
       const user = await this.fetchUser();
       const isLogged = await this.options.isUserLogged(user);
       if (isLogged) {
@@ -135,7 +199,8 @@ class AuthClient implements AuthClientImpl {
   }
 
   logout() {
-    this.deleteToken();
+    this.deleteAccessToken();
+    this.deleteRefreshToken();
     this.loggedSubject.next(false);
     this.userSubject.next(null);
     return this;

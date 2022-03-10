@@ -1,6 +1,7 @@
 import { BehaviorSubject } from "rxjs";
 
 import AuthTokenStorage from "./AuthTokenStorage";
+import GraphandPlugin, { GraphandPluginOpts } from "./GraphandPlugin";
 
 interface AuthClientOptions {
   fetchUser?;
@@ -26,10 +27,6 @@ const defaultOptions: AuthClientOptions = {
   getAccessToken: (data) => data,
   getRefreshToken: () => null,
 };
-
-interface GraphandPluginOpts {
-  defaultToken?: string;
-}
 
 class AuthClient implements AuthClientImpl {
   name: string;
@@ -208,28 +205,9 @@ class AuthClient implements AuthClientImpl {
     return this;
   }
 
-  generateGraphandPlugin(options: GraphandPluginOpts = {}) {
-    const { defaultToken } = options;
-    return (graphandClient) => {
-      graphandClient._refreshTokenSubject.subscribe((token) => this.setRefreshToken(token));
-      graphandClient._accessTokenSubject.subscribe((token) => {
-        if (token === defaultToken) {
-          return;
-        }
-
-        if (!token) {
-          graphandClient.setAccessToken(defaultToken);
-        } else if (token !== this.getAccessToken()) {
-          this.setAccessToken(token);
-        }
-      });
-
-      const accessToken = this.getAccessToken();
-      if (accessToken) {
-        graphandClient.setAccessToken(accessToken);
-        this.sync();
-      }
-    };
+  generateGraphandPlugin(options: GraphandPluginOpts) {
+    options = Object.assign(options || {}, { authClient: this });
+    return (graphandClient, overrideOptions) => GraphandPlugin(graphandClient, { ...options, ...overrideOptions });
   }
 }
 

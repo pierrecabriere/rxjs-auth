@@ -1,6 +1,6 @@
 {
   "name": "rxjs-auth",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Simple auth-manager based on rxjs",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
@@ -18,21 +18,21 @@
     "node": ">=10"
   },
   "dependencies": {
-    "rxjs": "^6.6.7",
+    "rxjs": "^7.5.5",
     "universal-cookie": "^4.0.4"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.10.0",
-    "@typescript-eslint/parser": "^5.10.0",
-    "eslint": "^8.7.0",
-    "eslint-config-prettier": "^8.3.0",
+    "@typescript-eslint/eslint-plugin": "^5.14.0",
+    "@typescript-eslint/parser": "^5.14.0",
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-functional": "^4.1.1",
+    "eslint-plugin-functional": "^4.2.0",
     "eslint-plugin-import": "^2.25.4",
     "prettier": "^2.5.1",
-    "ts-node": "^10.4.0",
-    "typedoc": "^0.22.11",
-    "typescript": "^4.5.4"
+    "ts-node": "^10.7.0",
+    "typedoc": "^0.22.13",
+    "typescript": "^4.6.2"
   },
   "files": [
     "build/main",

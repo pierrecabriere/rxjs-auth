@@ -2,7 +2,7 @@ import AuthClient from "./AuthClient";
 
 export interface GraphandPluginOpts {
   defaultToken?: string;
-  authClient: AuthClient;
+  authClient?: AuthClient;
 }
 
 const GraphandPlugin = (graphandClient, options: GraphandPluginOpts) => {

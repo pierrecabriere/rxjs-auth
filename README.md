@@ -12,7 +12,7 @@ Simple auth-manager based on rxjs
 import RxjsAuth from "rxjs-auth";
 
 const authmanager = RxjsAuth.create("myProjectIdentifier", {
-  login: (credentials) => axios.post("/give-me-my-token", credentials).then(res => res.data),
+  login: (credentials) => axios.post("/give-me-my-access-token", credentials).then(res => res.data),
   fetchUser: (token) => axios.post("/who-am-i", { headers: { "Authorization": "Bearer " + token } }).then(res => res.data),
   // optional
   isUserLogged: (resFromFetchUser) => !!resFromFetchUser,
@@ -25,16 +25,16 @@ export { authmanager };
 
 ### Enjoy !
 
-First, link token to your requests with `getToken()`
+First, include access token in your requests headers with `getAccessToken()`
 
 ```js
 import { authmanager } from "./path/to/manager";
 
 axios.interceptors.request.use(function(config) {
-  const token = authmanager.getAccessToken();
+  const accessToken = authmanager.getAccessToken();
 
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
 
   return config;

@@ -1,39 +1,71 @@
 import AuthClient from "./AuthClient";
+import { Client, GraphandPlugin } from "graphand-js";
 
 export interface GraphandPluginOpts {
   defaultToken?: string;
-  authClient?: AuthClient;
+  authClient?: AuthClient | Function;
+  execute?: boolean;
 }
 
-const GraphandPlugin = (graphandClient, options: GraphandPluginOpts) => {
+const defaultOptions: GraphandPluginOpts = {
+  execute: true,
+};
+
+let rtSub;
+let atSub;
+
+function executor(graphandClient: Client, options: GraphandPluginOpts) {
   const { authClient, defaultToken } = options;
 
-  if (!graphandClient.accessToken) {
-    graphandClient.setAccessToken(authClient?.getAccessToken() || defaultToken);
+  const client: AuthClient = typeof authClient === "function" ? authClient.apply(authClient, arguments) : authClient;
+
+  if (atSub?.unsubscribe) {
+    atSub.unsubscribe();
+  }
+
+  if (rtSub?.unsubscribe) {
+    rtSub.unsubscribe();
   }
 
   if (!graphandClient.refreshToken) {
-    graphandClient.setRefreshToken(authClient?.getRefreshToken());
+    const refreshToken = client?.getRefreshToken();
+    if (refreshToken) {
+      graphandClient.setRefreshToken(refreshToken);
+    }
   }
 
-  graphandClient._refreshTokenSubject.subscribe((token) => authClient.setRefreshToken(token));
-  graphandClient._accessTokenSubject.subscribe((token) => {
+  if (!graphandClient.accessToken) {
+    const accessToken = client?.getAccessToken() || defaultToken;
+    if (accessToken) {
+      graphandClient.setAccessToken(accessToken);
+      client.sync();
+    }
+  }
+
+  rtSub = graphandClient._refreshTokenSubject.subscribe((token) => client.setRefreshToken(token));
+  atSub = graphandClient._accessTokenSubject.subscribe((token) => {
     if (token === defaultToken) {
       return;
     }
 
     if (!token) {
       graphandClient.setAccessToken(defaultToken);
-    } else if (token !== authClient.getAccessToken()) {
-      authClient.setAccessToken(token);
+    } else if (token !== client.getAccessToken()) {
+      client.setAccessToken(token);
     }
   });
+}
 
-  const accessToken = authClient.getAccessToken();
-  if (accessToken) {
-    graphandClient.setAccessToken(accessToken);
-    authClient.sync();
-  }
+const RxjsAuthGraphandPlugin: GraphandPlugin = {
+  options: defaultOptions,
+  __construct(graphandClient: Client, options: GraphandPluginOpts) {
+    if (options.execute) {
+      executor(graphandClient, options);
+    } else {
+      // @ts-ignore
+      graphandClient.__initRxjsAuth = (args) => executor(graphandClient, { ...options, ...args });
+    }
+  },
 };
 
-export default GraphandPlugin;
+export default RxjsAuthGraphandPlugin;

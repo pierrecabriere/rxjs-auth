@@ -1,6 +1,6 @@
 {
   "name": "rxjs-auth",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Simple auth-manager based on rxjs",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
@@ -32,7 +32,8 @@
     "prettier": "^2.5.1",
     "ts-node": "^10.7.0",
     "typedoc": "^0.22.13",
-    "typescript": "^4.6.2"
+    "typescript": "^4.6.2",
+    "graphand-js": "^0.22.0-beta"
   },
   "files": [
     "build/main",

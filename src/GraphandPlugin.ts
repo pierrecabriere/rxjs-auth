@@ -27,14 +27,14 @@ function executor(graphandClient: Client, options: GraphandPluginOpts) {
     rtSub.unsubscribe();
   }
 
-  if (!graphandClient.refreshToken) {
+  if (!graphandClient.getRefreshToken()) {
     const refreshToken = client?.getRefreshToken();
     if (refreshToken) {
       graphandClient.setRefreshToken(refreshToken);
     }
   }
 
-  if (!graphandClient.accessToken) {
+  if (!graphandClient.getAccessToken()) {
     const accessToken = client?.getAccessToken() || defaultToken;
     if (accessToken) {
       graphandClient.setAccessToken(accessToken);

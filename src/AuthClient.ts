@@ -206,7 +206,7 @@ class AuthClient implements AuthClientImpl {
   }
 
   generateGraphandPlugin(options: GraphandPluginOpts) {
-    RxjsAuthGraphandPlugin.options = Object.assign(options || {}, { authClient: this });
+    Object.assign(RxjsAuthGraphandPlugin.options, options || {}, { authClient: this });
     return RxjsAuthGraphandPlugin;
   }
 }

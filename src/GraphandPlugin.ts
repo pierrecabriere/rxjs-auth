@@ -5,19 +5,26 @@ export interface GraphandPluginOpts {
   defaultToken?: string;
   authClient?: AuthClient | Function;
   execute?: boolean;
+  sync?: boolean;
 }
 
 const defaultOptions: GraphandPluginOpts = {
   execute: true,
+  sync: undefined,
 };
 
 let rtSub;
 let atSub;
 
 function executor(graphandClient: Client, options: GraphandPluginOpts) {
-  const { authClient, defaultToken } = options;
+  const { authClient, defaultToken, sync } = options;
 
-  const client: AuthClient = typeof authClient === "function" ? authClient.apply(authClient, arguments) : authClient;
+  let client: AuthClient;
+  try {
+    client = typeof authClient === "function" ? authClient.apply(authClient, arguments) : authClient;
+  } catch (e) {
+    console.error(e);
+  }
 
   if (atSub?.unsubscribe) {
     atSub.unsubscribe();
@@ -38,7 +45,6 @@ function executor(graphandClient: Client, options: GraphandPluginOpts) {
     const accessToken = client?.getAccessToken() || defaultToken;
     if (accessToken) {
       graphandClient.setAccessToken(accessToken);
-      client.sync();
     }
   }
 
@@ -54,6 +60,11 @@ function executor(graphandClient: Client, options: GraphandPluginOpts) {
       client.setAccessToken(token);
     }
   });
+
+  const accessToken = graphandClient.getAccessToken();
+  if (sync === true || (accessToken && sync !== false)) {
+    client.sync();
+  }
 }
 
 const RxjsAuthGraphandPlugin: GraphandPlugin = {

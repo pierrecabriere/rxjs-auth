@@ -1,9 +1,10 @@
-import AuthClient from "./AuthClient";
+import AuthClient, { AuthClientOptions } from "./AuthClient";
 import { Client, GraphandPlugin } from "graphand-js";
 
 export interface GraphandPluginOpts {
   defaultToken?: string;
   authClient?: AuthClient | Function;
+  authClientOptions?: AuthClientOptions;
   execute?: boolean;
   sync?: boolean;
 }
@@ -11,13 +12,32 @@ export interface GraphandPluginOpts {
 const defaultOptions: GraphandPluginOpts = {
   execute: true,
   sync: undefined,
+  authClientOptions: {},
 };
 
 let rtSub;
 let atSub;
 
-function executor(graphandClient: Client, options: GraphandPluginOpts) {
-  const { authClient, defaultToken, sync } = options;
+function createAuthmanager(graphandClient, opts: AuthClientOptions = {}) {
+  return AuthClient.create(graphandClient._options.project, {
+    fetchUser: async () => {
+      try {
+        return await graphandClient.getModel("Account").getCurrent();
+      } catch (e) {
+        graphandClient.logout();
+        return null;
+      }
+    },
+    login: (credentials) => graphandClient.login(credentials),
+    refreshToken: () => graphandClient.refreshToken(),
+    getAccessToken: () => graphandClient.getAccessToken(),
+    getRefreshToken: () => graphandClient.getRefreshToken(),
+    ...opts,
+  });
+}
+
+async function executor(graphandClient: Client, options: GraphandPluginOpts) {
+  const { authClient, defaultToken, sync, authClientOptions } = options;
 
   let client: AuthClient;
   try {
@@ -25,6 +45,29 @@ function executor(graphandClient: Client, options: GraphandPluginOpts) {
   } catch (e) {
     console.error(e);
   }
+
+  client = client || createAuthmanager(graphandClient, authClientOptions);
+
+  if (!client) {
+    throw new Error(`Unable to get the authClient`);
+  }
+
+  // @ts-ignore
+  graphandClient.authmanager = client;
+
+  const graphandLogout = graphandClient.logout;
+  graphandClient.logout = function () {
+    if (atSub?.unsubscribe) {
+      atSub.unsubscribe();
+    }
+
+    if (rtSub?.unsubscribe) {
+      rtSub.unsubscribe();
+    }
+
+    client.logout();
+    graphandLogout.apply(graphandClient, arguments);
+  };
 
   if (atSub?.unsubscribe) {
     atSub.unsubscribe();
@@ -34,19 +77,28 @@ function executor(graphandClient: Client, options: GraphandPluginOpts) {
     rtSub.unsubscribe();
   }
 
-  if (!graphandClient.getRefreshToken()) {
-    const refreshToken = client?.getRefreshToken();
-    if (refreshToken) {
-      graphandClient.setRefreshToken(refreshToken);
-    }
-  }
+  await Promise.all([
+    new Promise(async (resolve) => {
+      if (!graphandClient.getRefreshToken()) {
+        const refreshToken = await client.getRefreshToken();
+        if (refreshToken) {
+          graphandClient.setRefreshToken(refreshToken);
+        }
+      }
 
-  if (!graphandClient.getAccessToken()) {
-    const accessToken = client?.getAccessToken() || defaultToken;
-    if (accessToken) {
-      graphandClient.setAccessToken(accessToken);
-    }
-  }
+      resolve(true);
+    }),
+    new Promise(async (resolve) => {
+      if (!graphandClient.getAccessToken()) {
+        const accessToken = (await client.getAccessToken()) || defaultToken;
+        if (accessToken) {
+          graphandClient.setAccessToken(accessToken);
+        }
+      }
+
+      resolve(true);
+    }),
+  ]);
 
   rtSub = graphandClient._refreshTokenSubject.subscribe((token) => client.setRefreshToken(token));
   atSub = graphandClient._accessTokenSubject.subscribe((token) => {

@@ -1,5 +1,4 @@
 import { BehaviorSubject } from "rxjs";
-
 import AuthTokenStorage from "./AuthTokenStorage";
 import RxjsAuthGraphandPlugin, { GraphandPluginOpts } from "./GraphandPlugin";
 
@@ -212,3 +211,4 @@ class AuthClient implements AuthClientImpl {
 }
 
 export default AuthClient;
+export { AuthClientImpl, AuthClientOptions };

@@ -83,7 +83,6 @@ async function executor(graphandClient: Client, options: GraphandPluginOpts) {
       if (!graphandClient.getAccessToken()) {
         const accessToken = (await client.getAccessToken()) || defaultToken;
         if (accessToken) {
-          console.log(accessToken);
           graphandClient.setAccessToken(accessToken);
         }
       }

@@ -15,9 +15,6 @@ const defaultOptions: GraphandPluginOpts = {
   authClientOptions: {},
 };
 
-let rtSub;
-let atSub;
-
 function createAuthmanager(graphandClient, opts: AuthClientOptions = {}) {
   return AuthClient.create(graphandClient._options.project, {
     fetchUser: async () => {
@@ -52,29 +49,23 @@ async function executor(graphandClient: Client, options: GraphandPluginOpts) {
     throw new Error(`Unable to get the authClient`);
   }
 
-  // @ts-ignore
-  graphandClient.authmanager = client;
-
   const graphandLogout = graphandClient.logout;
-  graphandClient.logout = function () {
-    if (atSub?.unsubscribe) {
-      atSub.unsubscribe();
-    }
-
-    if (rtSub?.unsubscribe) {
-      rtSub.unsubscribe();
-    }
-
+  const logout = function () {
     client.logout();
     graphandLogout.apply(graphandClient, arguments);
   };
 
-  if (atSub?.unsubscribe) {
-    atSub.unsubscribe();
+  Object.assign(graphandClient, { __authmanager_rtSub: null, __authmanager_atSub: null, authmanager: client, logout });
+
+  // @ts-ignore
+  const { __authmanager_rtSub, __authmanager_atSub } = graphandClient;
+
+  if (__authmanager_atSub?.unsubscribe) {
+    __authmanager_atSub.unsubscribe();
   }
 
-  if (rtSub?.unsubscribe) {
-    rtSub.unsubscribe();
+  if (__authmanager_rtSub?.unsubscribe) {
+    __authmanager_rtSub.unsubscribe();
   }
 
   await Promise.all([
@@ -92,6 +83,7 @@ async function executor(graphandClient: Client, options: GraphandPluginOpts) {
       if (!graphandClient.getAccessToken()) {
         const accessToken = (await client.getAccessToken()) || defaultToken;
         if (accessToken) {
+          console.log(accessToken);
           graphandClient.setAccessToken(accessToken);
         }
       }
@@ -100,8 +92,8 @@ async function executor(graphandClient: Client, options: GraphandPluginOpts) {
     }),
   ]);
 
-  rtSub = graphandClient._refreshTokenSubject.subscribe((token) => client.setRefreshToken(token));
-  atSub = graphandClient._accessTokenSubject.subscribe((token) => {
+  const rtSub = graphandClient._refreshTokenSubject.subscribe((token) => client.setRefreshToken(token));
+  const atSub = graphandClient._accessTokenSubject.subscribe((token) => {
     if (token === defaultToken) {
       return;
     }
@@ -112,6 +104,8 @@ async function executor(graphandClient: Client, options: GraphandPluginOpts) {
       client.setAccessToken(token);
     }
   });
+
+  Object.assign(graphandClient, { __authmanager_rtSub: rtSub, __authmanager_atSub: atSub });
 
   const accessToken = graphandClient.getAccessToken();
   if (sync === true || (accessToken && sync !== false)) {

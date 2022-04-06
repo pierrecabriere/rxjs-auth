@@ -107,7 +107,7 @@ async function executor(graphandClient: Client, options: GraphandPluginOpts) {
   Object.assign(graphandClient, { __authmanager_rtSub: rtSub, __authmanager_atSub: atSub });
 
   const accessToken = graphandClient.getAccessToken();
-  if (sync === true || (accessToken && sync !== false)) {
+  if (sync === true || (accessToken !== defaultToken && sync !== false)) {
     client.sync();
   }
 }

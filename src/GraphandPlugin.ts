@@ -49,13 +49,14 @@ async function executor(graphandClient: Client, options: GraphandPluginOpts) {
     throw new Error(`Unable to get the authClient`);
   }
 
-  const graphandLogout = graphandClient.logout;
-  const logout = function () {
-    client.logout();
-    graphandLogout.apply(graphandClient, arguments);
+  const clientLogout = client.logout;
+  client.logout = function () {
+    clientLogout();
+    graphandClient.logout();
+    return this;
   };
 
-  Object.assign(graphandClient, { __authmanager_rtSub: null, __authmanager_atSub: null, authmanager: client, logout });
+  Object.assign(graphandClient, { __authmanager_rtSub: null, __authmanager_atSub: null, authmanager: client });
 
   // @ts-ignore
   const { __authmanager_rtSub, __authmanager_atSub } = graphandClient;

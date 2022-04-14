@@ -49,10 +49,18 @@ async function executor(graphandClient: Client, options: GraphandPluginOpts) {
     throw new Error(`Unable to get the authClient`);
   }
 
+  const grahandLogout = graphandClient.logout;
   const clientLogout = client.logout;
+
+  graphandClient.logout = function (...args) {
+    clientLogout();
+    grahandLogout(...args);
+    return this;
+  }
+
   client.logout = function () {
     clientLogout();
-    graphandClient.logout();
+    grahandLogout();
     return this;
   };
 

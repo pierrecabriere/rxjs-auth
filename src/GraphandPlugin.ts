@@ -53,14 +53,14 @@ async function executor(graphandClient: Client, options: GraphandPluginOpts) {
   const clientLogout = client.logout;
 
   graphandClient.logout = function (...args) {
-    clientLogout();
-    grahandLogout(...args);
+    clientLogout.apply(client);
+    grahandLogout.apply(graphandClient, args);
     return this;
   }
 
-  client.logout = function () {
-    clientLogout();
-    grahandLogout();
+  client.logout = function (...args) {
+    clientLogout.apply(client, args);
+    grahandLogout.apply(graphandClient);
     return this;
   };
 

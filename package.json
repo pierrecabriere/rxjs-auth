@@ -1,48 +1,48 @@
 {
   "name": "rxjs-auth",
-  "version": "1.3.6",
+  "version": "1.4.0",
   "description": "Simple auth-manager based on rxjs",
-  "main": "build/main/index.js",
-  "types": "build/main/index.d.ts",
-  "typings": "build/main/index.d.ts",
-  "module": "build/module/index.js",
-  "repository": "https://github.com/pierrecabriere/rxjs-auth",
+  "homepage": "https://github.com/pierrecabriere/rxjs-auth",
+  "repository": "pierrecabriere/rxjs-auth",
+  "main": "dist/index.min.js",
+  "types": "dist/types/index.d.ts",
+  "author": "Pierre Cabrière",
   "license": "MIT",
-  "keywords": [],
+  "source": "src/index.ts",
   "scripts": {
-    "build": "run-p build:*",
-    "build:main": "tsc -p tsconfig.json",
-    "build:module": "tsc -p tsconfig.module.json"
-  },
-  "engines": {
-    "node": ">=10"
+    "build": "webpack",
+    "build:watch": "WATCH=1 webpack",
+    "build:doc": "mkdir -p docs && tsc --project tsconfig.json --outDir dist-docs && node generate-doc.js && rm -rf dist-docs",
+    "test": "jest"
   },
   "dependencies": {
     "rxjs": "^7.5.5",
     "universal-cookie": "^4.0.4"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.14.0",
-    "@typescript-eslint/parser": "^5.14.0",
-    "eslint": "^8.10.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-functional": "^4.2.0",
-    "eslint-plugin-import": "^2.25.4",
-    "graphand-js": "^0.22.0-beta",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^2.5.1",
+    "@faker-js/faker": "^6.1.2",
+    "@types/jest": "^27.4.1",
+    "@types/node": "^17.0.21",
+    "@typescript-eslint/eslint-plugin": "^4.8.1",
+    "@typescript-eslint/parser": "^4.8.1",
+    "bufferutil": "^4.0.6",
+    "eslint": "^7.13.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-config-typescript": "^3.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.1.4",
+    "graphand-js": "^0.26.3-beta",
+    "jest": "^27.5.1",
+    "jest-circus": "^27.5.1",
+    "jsdoc-to-markdown": "^7.1.1",
+    "prettier": "^2.6.2",
+    "terser-webpack-plugin": "^5.3.1",
+    "ts-jest": "^27.1.4",
+    "ts-loader": "^9.2.8",
     "ts-node": "^10.7.0",
-    "typedoc": "^0.22.13",
-    "typescript": "^4.6.2"
-  },
-  "files": [
-    "build/main",
-    "build/module",
-    "!**/*.spec.*",
-    "!**/*.json",
-    "CHANGELOG.md",
-    "LICENSE",
-    "README.md"
-  ]
+    "typescript": "^4.6.3",
+    "utf-8-validate": "^5.0.9",
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2"
+  }
 }

@@ -1,15 +1,15 @@
-import AuthClient, { AuthClientOptions } from "./AuthClient";
 import { Client, GraphandPlugin } from "graphand-js";
+import AuthClient, { AuthClientOptions } from "./AuthClient";
 
-export interface GraphandPluginOpts {
+export interface RxjsAuthGraphandPluginOpts {
   defaultToken?: string;
-  authClient?: AuthClient | Function;
+  authClient?: AuthClient | ((...any) => AuthClient);
   authClientOptions?: AuthClientOptions;
   execute?: boolean;
   sync?: boolean;
 }
 
-const defaultOptions: GraphandPluginOpts = {
+const defaultOptions: RxjsAuthGraphandPluginOpts = {
   execute: true,
   sync: undefined,
   authClientOptions: {},
@@ -33,7 +33,7 @@ function createAuthmanager(graphandClient, opts: AuthClientOptions = {}) {
   });
 }
 
-async function executor(graphandClient: Client, options: GraphandPluginOpts) {
+async function executor(graphandClient: Client, options: RxjsAuthGraphandPluginOpts) {
   const { authClient, defaultToken, sync, authClientOptions } = options;
 
   let client: AuthClient;
@@ -56,7 +56,7 @@ async function executor(graphandClient: Client, options: GraphandPluginOpts) {
     clientLogout.apply(client);
     grahandLogout.apply(graphandClient, args);
     return this;
-  }
+  };
 
   client.logout = function (...args) {
     clientLogout.apply(client, args);
@@ -121,16 +121,19 @@ async function executor(graphandClient: Client, options: GraphandPluginOpts) {
   }
 }
 
-const RxjsAuthGraphandPlugin: GraphandPlugin = {
-  options: defaultOptions,
-  __construct(graphandClient: Client, options: GraphandPluginOpts) {
+class RxjsAuthGraphandPlugin extends GraphandPlugin<RxjsAuthGraphandPluginOpts> {
+  static defaultOptions = defaultOptions;
+
+  onInstall(): any {
+    const { client, options } = this;
+
     if (options.execute) {
-      executor(graphandClient, options);
+      executor(client, options);
     } else {
       // @ts-ignore
-      graphandClient.__initRxjsAuth = (args) => executor(graphandClient, { ...options, ...args });
+      client.__initRxjsAuth = (args) => executor(client, { ...options, ...args });
     }
-  },
-};
+  }
+}
 
 export default RxjsAuthGraphandPlugin;

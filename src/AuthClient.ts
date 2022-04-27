@@ -1,6 +1,6 @@
 import { BehaviorSubject } from "rxjs";
 import AuthTokenStorage from "./AuthTokenStorage";
-import RxjsAuthGraphandPlugin, { GraphandPluginOpts } from "./GraphandPlugin";
+import RxjsAuthGraphandPlugin, { RxjsAuthGraphandPluginOpts } from "./GraphandPlugin";
 
 interface AuthClientOptions {
   fetchUser?;
@@ -204,9 +204,10 @@ class AuthClient implements AuthClientImpl {
     return this;
   }
 
-  generateGraphandPlugin(options: GraphandPluginOpts) {
-    Object.assign(RxjsAuthGraphandPlugin.options, options || {}, { authClient: this });
-    return RxjsAuthGraphandPlugin;
+  generateGraphandPlugin(options: RxjsAuthGraphandPluginOpts) {
+    return class extends RxjsAuthGraphandPlugin {
+      static defaultOptions = Object.assign(RxjsAuthGraphandPlugin.defaultOptions, options || {}, { authClient: this });
+    };
   }
 }
 

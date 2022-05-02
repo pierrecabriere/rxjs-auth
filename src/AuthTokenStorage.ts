@@ -24,7 +24,7 @@ class AuthTokenStorage implements AuthTokenStorageImpl {
     Object.assign(this, { get, set, del });
   }
 
-  static default = new AuthTokenStorage({
+  static localStorage = new AuthTokenStorage({
     get: (tokenName: string) => localStorage.getItem(tokenName),
     set: (token: string, tokenName: string) => localStorage.setItem(tokenName, token),
     del: (tokenName: string) => localStorage.removeItem(tokenName),
@@ -41,6 +41,8 @@ class AuthTokenStorage implements AuthTokenStorageImpl {
     set: (token: string, tokenName: string) => new Cookies().set(tokenName, token),
     del: (tokenName: string) => new Cookies().remove(tokenName),
   });
+
+  static default = AuthTokenStorage.memory;
 
   static cookieWithConfig = (config: AuthTokenStorageCookieConfigImpl = {}) => {
     const getOpts = config.get || {};

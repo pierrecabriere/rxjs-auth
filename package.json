@@ -1,6 +1,6 @@
 {
   "name": "rxjs-auth",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Simple javascript auth-manager based on rxjs",
   "homepage": "https://github.com/pierrecabriere/rxjs-auth",
   "repository": "pierrecabriere/rxjs-auth",
@@ -32,7 +32,7 @@
     "eslint-config-typescript": "^3.0.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.1.4",
-    "graphand-js": "^0.27.0-beta",
+    "graphand-js": "^0.27.2-beta",
     "jest": "^27.5.1",
     "jest-circus": "^27.5.1",
     "jsdoc-to-markdown": "^7.1.1",

@@ -115,8 +115,7 @@ async function executor(graphandClient: Client, options: RxjsAuthGraphandPluginO
 
   Object.assign(graphandClient, { __authmanager_rtSub: rtSub, __authmanager_atSub: atSub });
 
-  const accessToken = graphandClient.getAccessToken();
-  if (sync === true || (accessToken !== defaultToken && sync !== false)) {
+  if (sync === true || (graphandClient.getAccessToken() !== defaultToken && sync !== false)) {
     client.sync();
   }
 }
@@ -126,7 +125,6 @@ class RxjsAuthGraphandPlugin extends GraphandPlugin<RxjsAuthGraphandPluginOpts> 
 
   onInstall(): any {
     const { client, options } = this;
-
     if (options.execute) {
       executor(client, options);
     } else {

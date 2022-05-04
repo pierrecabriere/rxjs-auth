@@ -1,5 +1,14 @@
 import { Client, GraphandPlugin } from "graphand-js";
+import { Subscription } from "rxjs";
 import AuthClient, { AuthClientOptions } from "./AuthClient";
+
+declare module "graphand-js" {
+  interface Client {
+    authmanager: AuthClient;
+    __authmanager_rtSub: Subscription;
+    __authmanager_atSub: Subscription;
+  }
+}
 
 export interface RxjsAuthGraphandPluginOpts {
   defaultToken?: string;
@@ -64,9 +73,10 @@ async function executor(graphandClient: Client, options: RxjsAuthGraphandPluginO
     return this;
   };
 
-  Object.assign(graphandClient, { __authmanager_rtSub: null, __authmanager_atSub: null, authmanager: client });
+  graphandClient.__authmanager_rtSub = null;
+  graphandClient.__authmanager_atSub = null;
+  graphandClient.authmanager = client;
 
-  // @ts-ignore
   const { __authmanager_rtSub, __authmanager_atSub } = graphandClient;
 
   if (__authmanager_atSub?.unsubscribe) {
@@ -113,7 +123,8 @@ async function executor(graphandClient: Client, options: RxjsAuthGraphandPluginO
     }
   });
 
-  Object.assign(graphandClient, { __authmanager_rtSub: rtSub, __authmanager_atSub: atSub });
+  graphandClient.__authmanager_rtSub = rtSub;
+  graphandClient.__authmanager_atSub = rtSub;
 
   if (sync === true || (graphandClient.getAccessToken() !== defaultToken && sync !== false)) {
     client.sync();

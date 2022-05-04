@@ -17,6 +17,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "graphand-js": "*",
     "rxjs": "^7.5.5",
     "universal-cookie": "^4.0.4"
   },
@@ -32,7 +33,7 @@
     "eslint-config-typescript": "^3.0.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.1.4",
-    "graphand-js": "^0.27.2-beta",
+    "graphand-js": "^0.27.4-beta",
     "jest": "^27.5.1",
     "jest-circus": "^27.5.1",
     "jsdoc-to-markdown": "^7.1.1",

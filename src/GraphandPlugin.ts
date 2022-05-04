@@ -1,10 +1,10 @@
-import { Client, GraphandPlugin } from "graphand-js";
+import { Client, GraphandPlugin, GraphandModelAccount } from "graphand-js";
 import { Subscription } from "rxjs";
 import AuthClient, { AuthClientOptions } from "./AuthClient";
 
 declare module "graphand-js" {
   interface Client {
-    authmanager: AuthClient;
+    authmanager: AuthClient<GraphandModelAccount>;
     __authmanager_rtSub: Subscription;
     __authmanager_atSub: Subscription;
   }
@@ -12,7 +12,7 @@ declare module "graphand-js" {
 
 export interface RxjsAuthGraphandPluginOpts {
   defaultToken?: string;
-  authClient?: AuthClient | ((...any) => AuthClient);
+  authClient?: AuthClient<GraphandModelAccount> | ((...any) => AuthClient<GraphandModelAccount>);
   authClientOptions?: AuthClientOptions;
   execute?: boolean;
   sync?: boolean;
@@ -45,14 +45,14 @@ function createAuthmanager(graphandClient, opts: AuthClientOptions = {}) {
 async function executor(graphandClient: Client, options: RxjsAuthGraphandPluginOpts) {
   const { authClient, defaultToken, sync, authClientOptions } = options;
 
-  let client: AuthClient;
+  let client: AuthClient<GraphandModelAccount>;
   try {
     client = typeof authClient === "function" ? authClient.apply(authClient, arguments) : authClient;
   } catch (e) {
     console.error(e);
   }
 
-  client = client || createAuthmanager(graphandClient, authClientOptions);
+  client = client || (createAuthmanager(graphandClient, authClientOptions) as AuthClient<GraphandModelAccount>);
 
   if (!client) {
     throw new Error(`Unable to get the authClient`);

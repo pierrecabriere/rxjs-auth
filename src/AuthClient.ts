@@ -12,14 +12,6 @@ interface AuthClientOptions {
   refreshToken?;
 }
 
-interface AuthClientImpl {
-  name: string;
-  options: AuthClientOptions;
-  loadingSubject: BehaviorSubject<boolean>;
-  loggedSubject: BehaviorSubject<boolean>;
-  userSubject: BehaviorSubject<any>;
-}
-
 const defaultOptions: AuthClientOptions = {
   isUserLogged: (data) => !!data && Object.keys(data).length > 0,
   tokenStorage: AuthTokenStorage.default,
@@ -27,12 +19,12 @@ const defaultOptions: AuthClientOptions = {
   getRefreshToken: () => null,
 };
 
-class AuthClient implements AuthClientImpl {
+class AuthClient<T extends any> {
   name: string;
   options: AuthClientOptions;
   loadingSubject: BehaviorSubject<boolean>;
   loggedSubject: BehaviorSubject<boolean>;
-  userSubject: BehaviorSubject<any>;
+  userSubject: BehaviorSubject<T>;
 
   constructor(name: string, options: AuthClientOptions) {
     this.name = name;
@@ -67,15 +59,15 @@ class AuthClient implements AuthClientImpl {
     return new AuthClient(name, options);
   }
 
-  get loading() {
+  get loading(): boolean {
     return this.loadingSubject.getValue();
   }
 
-  get logged() {
+  get logged(): boolean {
     return this.loggedSubject.getValue();
   }
 
-  get user() {
+  get user(): T {
     return this.userSubject.getValue();
   }
 
@@ -204,7 +196,7 @@ class AuthClient implements AuthClientImpl {
     return this;
   }
 
-  generateGraphandPlugin(options: RxjsAuthGraphandPluginOpts) {
+  generateGraphandPlugin(options: RxjsAuthGraphandPluginOpts): typeof RxjsAuthGraphandPlugin {
     const defaultOptions = Object.assign(RxjsAuthGraphandPlugin.defaultOptions, options || {}, { authClient: this });
     return class extends RxjsAuthGraphandPlugin {
       static defaultOptions = defaultOptions;
@@ -213,4 +205,4 @@ class AuthClient implements AuthClientImpl {
 }
 
 export default AuthClient;
-export { AuthClientImpl, AuthClientOptions };
+export { AuthClientOptions };

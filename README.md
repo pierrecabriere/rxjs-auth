@@ -8,8 +8,8 @@ Simple javascript auth-manager based on rxjs
 
 ### Create manager
 
-```js
-import RxjsAuth from "rxjs-auth";
+```ts
+import RxjsAuth, { AuthTokenStorage } from "rxjs-auth";
 
 const authmanager = RxjsAuth.create("myProjectIdentifier", {
   login: (credentials) => axios.post("/give-me-my-access-token", credentials).then(res => res.data),
@@ -17,7 +17,8 @@ const authmanager = RxjsAuth.create("myProjectIdentifier", {
   // optional
   isUserLogged: (resFromFetchUser) => !!resFromFetchUser,
   getAccessToken: (loginData) => loginData.accessToken,
-  getRefreshToken: (loginData) => loginData.refreshToken,
+  getRefreshToken: (loginData) => loginData.refreshToken, 
+  tokenStorage: AuthTokenStorage.localStorage // default value is memory
 });
 
 export { authmanager };
@@ -27,7 +28,7 @@ export { authmanager };
 
 First, include access token in your requests headers with `getAccessToken()`
 
-```js
+```ts
 axios.interceptors.request.use(function(config) {
   const accessToken = authmanager.getAccessToken();
 
@@ -41,7 +42,7 @@ axios.interceptors.request.use(function(config) {
 
 Then, login with `login()`
 
-```js
+```ts
 console.log(authmanager.logged); // false
 console.log(authmanager.user); // null
 console.log(authmanager.loading); // false, true while authmanager is logging
@@ -50,9 +51,20 @@ console.log(authmanager.logged); // true
 console.log(authmanager.user); // ...
 ```
 
+### Default configuration
+
+```ts
+const defaultOptions: AuthClientOptions = {
+  isUserLogged: (data) => !!data && Object.keys(data).length > 0,
+  tokenStorage: AuthTokenStorage.default,
+  getAccessToken: (data) => data,
+  getRefreshToken: () => null,
+};
+```
+
 ### Subscribe
 
-```js
+```ts
 authmanager.loadingSubject.subscribe(_loading => console.log("loading: " + _loading));
 authmanager.loggedSubject.subscribe(_logged => console.log("logged: " + _logged));
 authmanager.userSubject.subscribe(_user => console.log("user: " + _user));
@@ -60,14 +72,21 @@ authmanager.userSubject.subscribe(_user => console.log("user: " + _user));
 
 ### Sync at startup
 
-```js
+```ts
 // Fetch the user from the previously stored token
 authmanager.sync();
 ```
 
 ### Logout
 
-```js
-// Fetch the user from the previously stored token
+```ts
 authmanager.logout();
+```
+
+### Update options
+
+```ts
+authmanager.setOptions({
+    tokenStorage: AuthTokenStorage.cookie
+});
 ```

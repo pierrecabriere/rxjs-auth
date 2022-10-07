@@ -1,9 +1,9 @@
 import Cookies from "universal-cookie";
 
 interface AuthTokenStorageImpl {
-  get: Function;
-  set: Function;
-  del: Function;
+  get: (tokenName: string) => void;
+  set: (token: string, tokenName: string) => void;
+  del: (tokenName: string) => void;
 }
 
 interface AuthTokenStorageCookieConfigImpl {

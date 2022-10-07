@@ -71,6 +71,11 @@ class AuthClient<T extends any> {
     return this.userSubject.getValue();
   }
 
+  setOptions(options: Partial<AuthClientOptions>) {
+    this.options = Object.assign({}, defaultOptions, this.options, options);
+    return this;
+  }
+
   getTokenName(suffix = "access-token") {
     const name = this.name ? `rxjs-auth-${this.name}` : "rxjs-auth";
     return name + `-${suffix}`;

@@ -1,9 +1,9 @@
-import { Client, GraphandPlugin, GraphandModelAccount } from "graphand-js";
+import { GraphandClient, GraphandPlugin, GraphandModelAccount } from "graphand-js";
 import { Subscription } from "rxjs";
 import AuthClient, { AuthClientOptions } from "./AuthClient";
 
 declare module "graphand-js" {
-  class Client {
+  class GraphandClient {
     authmanager: AuthClient<GraphandModelAccount>;
     __authmanager_rtSub: Subscription;
     __authmanager_atSub: Subscription;
@@ -42,7 +42,7 @@ function createAuthmanager(graphandClient, opts: AuthClientOptions = {}) {
   });
 }
 
-async function executor(graphandClient: Client, options: RxjsAuthGraphandPluginOpts) {
+async function executor(graphandClient: GraphandClient, options: RxjsAuthGraphandPluginOpts) {
   const { authClient, defaultToken, sync, authClientOptions } = options;
 
   let client: AuthClient<GraphandModelAccount>;

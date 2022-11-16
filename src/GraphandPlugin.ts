@@ -12,7 +12,7 @@ declare module "graphand-js" {
 
 export interface RxjsAuthGraphandPluginOpts {
   defaultToken?: string;
-  authClient?: AuthClient<GraphandModelAccount> | ((...any) => AuthClient<GraphandModelAccount>);
+  authClient?: AuthClient | ((...any) => AuthClient);
   authClientOptions?: AuthClientOptions;
   execute?: boolean;
   sync?: boolean;

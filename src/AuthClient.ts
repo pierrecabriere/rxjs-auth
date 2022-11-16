@@ -12,6 +12,8 @@ interface AuthClientOptions {
   refreshToken?;
 }
 
+type AuthClientUserType = any;
+
 const defaultOptions: AuthClientOptions = {
   isUserLogged: (data) => !!data && Object.keys(data).length > 0,
   tokenStorage: AuthTokenStorage.default,
@@ -19,7 +21,7 @@ const defaultOptions: AuthClientOptions = {
   getRefreshToken: () => null,
 };
 
-class AuthClient<T extends any> {
+class AuthClient<T extends AuthClientUserType = any> {
   name: string;
   options: AuthClientOptions;
   loadingSubject: BehaviorSubject<boolean>;

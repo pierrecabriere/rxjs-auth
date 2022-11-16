@@ -1,6 +1,6 @@
 {
   "name": "rxjs-auth",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "Simple javascript auth-manager based on rxjs",
   "homepage": "https://github.com/pierrecabriere/rxjs-auth",
   "repository": "pierrecabriere/rxjs-auth",

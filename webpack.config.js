@@ -5,6 +5,9 @@ module.exports = {
   target: "web",
   mode: "development",
   devtool: "source-map",
+  externals: {
+    "graphand-js": "graphand-js",
+  },
   optimization: {
     minimize: true,
     minimizer: [

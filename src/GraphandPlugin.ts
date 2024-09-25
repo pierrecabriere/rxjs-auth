@@ -3,7 +3,7 @@ import { Subscription } from "rxjs";
 import AuthClient, { AuthClientOptions } from "./AuthClient";
 
 declare module "graphand-js" {
-  class GraphandClient {
+  export interface GraphandClient {
     authmanager: AuthClient<GraphandModelAccount>;
     __authmanager_rtSub: Subscription;
     __authmanager_atSub: Subscription;
